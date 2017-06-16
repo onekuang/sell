@@ -1,5 +1,9 @@
 <template>
+<div>
+
+
    <div class="goods">
+    <!-- 左侧菜单 -->
     <div class="menu-wrapper" ref="menuWrapper">
       <ul>
         <li v-for="(item,index) in goods" class="menu-item"
@@ -14,12 +18,13 @@
         </li>
       </ul>
     </div>
+    <!-- 右侧商品明细 -->
     <div class="foods-wrapper" ref="foodsWrapper">
       <ul>
         <li v-for="item in goods" class="food-list food-list-hook">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li v-for="food in item.foods" class="food-item">
+            <li @click="selectFood(food,$event)" v-for="food in item.foods" class="food-item">
               <div class="icon">
                 <img width="57" height="57" :src="food.icon">
               </div>
@@ -33,19 +38,32 @@
                   <span class="now">￥{{food.price}}</span>
                   <span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
                 </div>
+                <div class="cartcontrol-wrapper">
+                  <cartcontrol :food="food"></cartcontrol>
+                </div>
               </div>
             </li>
           </ul>
         </li>
       </ul>
     </div>
-    <shopcart></shopcart>
-   </div>
+    <!-- 底部购物车 -->
+    <shopcart :select-foods="selectFoods" :delivery-price="seller.deliverPrice" :min-price="seller.minPrice"></shopcart>
+  </div>
+
+  <!-- 点击商品时,跳转出来的详情页组件 -->
+  <food :food="selectedFood" ref="food"></food>
+
+
+
+</div>
 </template>
 
 <script>
 import BScroll from 'better-scroll'
 import shopcart from '../shopcart/shopcart'
+import cartcontrol from '../cartcontrol/cartcontrol'
+import food from '../food/food'
 const ERR_OK = 0
 export default {
   props: {
@@ -57,7 +75,8 @@ export default {
     return {
       goods: [],
       listHeight: [],
-      scrollY: 0
+      scrollY: 0,
+      selectedFood: {}
     }
   },
   computed: {
@@ -70,6 +89,17 @@ export default {
         }
       }
       return 0
+    },
+    selectFoods() {
+      let foods = []
+      this.goods.forEach((good) => {
+        good.foods.forEach((food) => {
+          if (food.count) {
+            foods.push(food)
+          }
+        })
+      })
+      return foods
     }
   },
   created() {
@@ -99,6 +129,7 @@ export default {
         click: true
       })
       this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+        click: true,
         probeType: 3
       })
       this.foodsScroll.on('scroll', (pos) => {
@@ -114,10 +145,19 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
+    },
+    selectFood(food, event) {
+      if (!event._constructed) {
+        return
+      }
+      this.selectedFood = food
+      this.$refs.food.show()
     }
   },
   components: {
-    shopcart
+    shopcart,
+    cartcontrol,
+    food
   }
 }
 </script>
@@ -230,6 +270,11 @@ export default {
               text-decoration: line-through;
               font-size: 10px;
               color: rgb(147, 153, 159);
+          .cartcontrol-wrapper
+            position: absolute;
+            right: 0px;
+            bottom: 12px;
+
 
 </style>
 
