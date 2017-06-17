@@ -43,10 +43,10 @@ apiRoutes.get('/goods',function(req,res){
   });
 });
 
-apiRoutes.get('/retings',function(req,res){
+apiRoutes.get('/ratings',function(req,res){
   res.json({
     errno:0,
-    data:retings
+    data:ratings
   });
 });
 

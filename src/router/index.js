@@ -12,7 +12,7 @@ export default new Router({
   routes: [
     {
     // 浏览器网路走通之后默认就会找域名下的根目录
-      path: '/',
+      path: '*',
     // 把goods作为默认首页
       name: 'goods',
       component: goods
